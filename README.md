@@ -67,7 +67,7 @@ This project is a full-stack **real-time chat application** with the following f
 - **Description**: Register a new user.
 - **Request Body**:
 
-  ```json
+```json
   
   {
     "username": "example",
