@@ -169,17 +169,17 @@ Response: 200 OK
 
 ## 🛠️ **Setup Instructions**
 
-Frontend Setup
-Clone the repository:
+## **Frontend Setup**
+**Clone the repository:**
 
-```json
+```bash
 
 git clone https://github.com/yourusername/LiveChat.git
 cd LiveChat/frontend
 
 ```
 
-Install dependencies:
+**Install dependencies:**
 
 ```bash
 
@@ -187,6 +187,9 @@ npm install
 Run the development server:
 
 ```
+
+**Start React project:**
+
 
 ```bash
 
@@ -225,8 +228,10 @@ cd LiveChat/backend
 Visit the app at `http://localhost:8096`.
 
 ## **Database Setup**
+
 Install MySQL (or use a cloud database).
-Create a database:
+
+**Create a database:**
 
 ```sql
 
@@ -248,7 +253,8 @@ spring.jpa.hibernate.ddl-auto=update
 Run the application to allow Spring Boot to initialize the database.
 
 ## 🧪 **Testing**
-Unit Tests
+### **Unit Tests**
+
 Run the unit tests for the backend:
 
 ```bash
@@ -257,7 +263,7 @@ Run the unit tests for the backend:
 
 ```
 
-Frontend Tests
+### **Frontend Tests**
 Run the frontend tests:
 
 ```bash
