@@ -1,7 +1,10 @@
 package com.mdharr.livechat.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,10 +21,17 @@ public class Room {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
+    @ManyToMany(mappedBy = "joinedRooms")
+    @JsonIgnore
+    @Builder.Default
+    private List<User> members = new ArrayList<>();
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     @Builder.Default
-    private List<Message> messages = new java.util.ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 }
+

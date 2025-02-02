@@ -1,14 +1,15 @@
 package com.mdharr.livechat.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "rooms", "joinedRooms"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,4 +24,19 @@ public class User {
 
     private String username;
     private String password;
+
+    @ManyToMany(mappedBy = "members")
+    @JsonIgnore
+    private List<Room> rooms = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_room",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "room_id")
+    )
+    @JsonIgnore
+    private List<Room> joinedRooms = new ArrayList<>();
 }
+
+

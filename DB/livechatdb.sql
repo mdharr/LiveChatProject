@@ -38,12 +38,12 @@ DROP TABLE IF EXISTS `room` ;
 CREATE TABLE IF NOT EXISTS `room` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
-  `user_id` INT NOT NULL,
+  `creator_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC),
-  INDEX `fk_room_user_idx` (`user_id` ASC),
+  INDEX `fk_room_user_idx` (`creator_id` ASC),
   CONSTRAINT `fk_room_user`
-    FOREIGN KEY (`user_id`)
+    FOREIGN KEY (`creator_id`)
     REFERENCES `user` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -76,6 +76,30 @@ CREATE TABLE IF NOT EXISTS `message` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+
+-- -----------------------------------------------------
+-- Table `user_room`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `user_room` ;
+
+CREATE TABLE IF NOT EXISTS `user_room` (
+  `user_id` INT NOT NULL,
+  `room_id` INT NOT NULL,
+  PRIMARY KEY (`user_id`, `room_id`),
+  INDEX `fk_user_has_room_room1_idx` (`room_id` ASC),
+  INDEX `fk_user_has_room_user1_idx` (`user_id` ASC),
+  CONSTRAINT `fk_user_has_room_user1`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_user_has_room_room1`
+    FOREIGN KEY (`room_id`)
+    REFERENCES `room` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
 SET SQL_MODE = '';
 DROP USER IF EXISTS livechat@localhost;
 SET SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
@@ -102,7 +126,17 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `livechatdb`;
-INSERT INTO `room` (`id`, `name`, `user_id`) VALUES (1, 'Wombat World', 1);
+INSERT INTO `room` (`id`, `name`, `creator_id`) VALUES (1, 'Wombat World', 1);
+
+COMMIT;
+
+
+-- -----------------------------------------------------
+-- Data for table `message`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `livechatdb`;
+INSERT INTO `message` (`id`, `content`, `timestamp`, `user_id`, `room_id`) VALUES (1, 'Hello World', '2025-02-01T01:01:01', 1, 1);
 
 COMMIT;
 

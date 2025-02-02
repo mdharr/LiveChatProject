@@ -27,19 +27,15 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	// JWT API
+	implementation 'org.springframework.security:spring-security-web:6.0.2'
+	implementation 'org.springframework.security:spring-security-config:6.0.2'
+
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-
-	// JWT Implementation
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-
-	// JWT with Jackson for JSON parsing
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-	// spring dotenv for loading environment variables
 	implementation group: 'me.paulschwarz', name: 'spring-dotenv', version: '4.0.0'
 
 	compileOnly 'org.projectlombok:lombok'

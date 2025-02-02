@@ -1,22 +1,19 @@
 package com.mdharr.livechat.services;
 
+import com.mdharr.livechat.dtos.MessageDTO;
 import com.mdharr.livechat.entities.Message;
 import com.mdharr.livechat.repositories.MessageRepository;
-import com.mdharr.livechat.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageServiceImpl implements MessageService {
 
-    private final MessageRepository messageRepository;
-
     @Autowired
-    public MessageServiceImpl(MessageRepository messageRepository) {
-        this.messageRepository = messageRepository;
-    }
+    private MessageRepository messageRepository;
 
     @Override
     public Message saveMessage(Message message) {
@@ -24,7 +21,10 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> getMessagesByRoomId(int roomId) {
-        return messageRepository.findByRoomId(roomId);
+    public List<MessageDTO> getMessagesByRoomId(int roomId) {
+        List<Message> messages = messageRepository.findByRoomId(roomId);
+        return messages.stream()
+                .map(msg -> new MessageDTO(msg.getId(), msg.getContent(), msg.getTimestamp(), msg.getSender().getUsername(), msg.getRoom().getName()))
+                .collect(Collectors.toList());
     }
 }

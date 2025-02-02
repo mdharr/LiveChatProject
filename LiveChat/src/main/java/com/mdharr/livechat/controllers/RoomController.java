@@ -4,31 +4,69 @@ import com.mdharr.livechat.dtos.RoomDTO;
 import com.mdharr.livechat.dtos.UserDTO;
 import com.mdharr.livechat.entities.Room;
 import com.mdharr.livechat.entities.User;
+import com.mdharr.livechat.security.JwtTokenUtil;
 import com.mdharr.livechat.services.RoomService;
+import com.mdharr.livechat.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("api/v1/rooms")
 public class RoomController {
 
     @Autowired
     private RoomService roomService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private JwtTokenUtil tokenUtil;
+
+    @GetMapping("/{roomId}")
+    public ResponseEntity<RoomDTO> getRoom(@PathVariable int roomId) {
+        RoomDTO roomDTO = roomService.getRoomWithMessages(roomId);
+        return ResponseEntity.ok(roomDTO);
+    }
+
     @PostMapping
-    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
-        Room created = roomService.createRoom(room);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<RoomDTO> createRoom(@RequestBody Room room, @RequestHeader("Authorization") String token) {
+        String username = tokenUtil.getUsernameFromJWT(token.substring(7));
+
+        User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+        room.setCreator(user);
+        Room createdRoom = roomService.createRoom(room);
+
+        RoomDTO roomDTO = roomService.convertToDto(createdRoom);
+        return ResponseEntity.ok(roomDTO);
+    }
+
+    @PostMapping("/{roomId}/join")
+    public ResponseEntity<String> joinRoom(@PathVariable int roomId, @RequestHeader("Authorization") String token) {
+        String username = tokenUtil.getUsernameFromJWT(token.substring(7));
+
+        User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Optional<Room> room = roomService.findById(roomId);
+        if (room.isPresent()) {
+            roomService.joinRoom(user, room.get());
+            return ResponseEntity.ok("User joined the room successfully");
+        } else {
+            return ResponseEntity.status(404).body("Room not found");
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Room> updateRoom(@PathVariable int id, @RequestBody Room room) {
-        Room updated = roomService.updateRoom(id, room);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<RoomDTO> updateRoom(@PathVariable int id, @RequestBody Room room) {
+        Room updatedRoom = roomService.updateRoom(id, room);
+        RoomDTO roomDTO = roomService.convertToDto(updatedRoom);
+        return ResponseEntity.ok(roomDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -38,32 +76,18 @@ public class RoomController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Room>> searchRooms(@RequestParam String keyword) {
+    public ResponseEntity<List<RoomDTO>> searchRooms(@RequestParam String keyword) {
         List<Room> rooms = roomService.searchRooms(keyword);
-        return ResponseEntity.ok(rooms);
-    }
-
-    private RoomDTO convertToDto(Room room) {
-        RoomDTO dto = new RoomDTO();
-        dto.setId(room.getId());
-        dto.setRoomName(room.getName());
-
-        User creator = room.getUser();
-        if (creator != null) {
-            UserDTO userDto = new UserDTO();
-            userDto.setId(creator.getId());
-            userDto.setUsername(creator.getUsername());
-            dto.setCreator(userDto);
-        }
-        return dto;
+        List<RoomDTO> roomDTOs = rooms.stream()
+                .map(roomService::convertToDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(roomDTOs);
     }
 
     @GetMapping
     public ResponseEntity<List<RoomDTO>> getAllRooms() {
-        List<Room> rooms = roomService.getAllRooms();
-        List<RoomDTO> roomDTOs = rooms.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        List<RoomDTO> roomDTOs = roomService.getAllRooms();
         return ResponseEntity.ok(roomDTOs);
     }
 }
+
