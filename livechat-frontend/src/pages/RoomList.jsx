@@ -41,9 +41,9 @@ const RoomList = () => {
     <div>
       <h2>Available Rooms</h2>
       <ul>
-        {rooms.map((room) => (
+      {rooms.map((room) => (
           <li key={room.id}>
-            <Link to={`/rooms/${room.id}`}>{room.name}</Link> {/* TODO */}
+            <Link to={`/rooms/${room.id}`}>{room.name}</Link>
           </li>
         ))}
       </ul>
