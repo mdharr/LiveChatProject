@@ -5,6 +5,7 @@ import Home from './pages/Home.jsx';
 import RoomList from './pages/RoomList.jsx';
 import Login from './pages/Login.jsx';
 import ChatRoom from './pages/ChatRoom.jsx';
+import MockGoogleAd from './components/MockGoogleAd.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -56,6 +57,8 @@ function App() {
           }
         />
       </Routes>
+      {/* <MockGoogleAd adType="banner" refreshInterval={5000} /> */}
+      <MockGoogleAd refreshInterval={5000} onClose={() => console.log('Ad was closed')} />
     </Router>
   );
 }
