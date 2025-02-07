@@ -17,9 +17,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
@@ -36,7 +34,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Autowired
     private JwtTokenUtil tokenUtil;
 
-    private final Map<String, WebSocketSession> sessionMap = new HashMap<>();
+    private final Map<String, List<WebSocketSession>> roomSessions = new HashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -46,8 +44,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         String token = params.get("token");
         if (token != null) {
             session.getAttributes().put("token", token);
+        } else {
+            System.err.println("No token provided in WebSocket connection");
         }
-        sessionMap.put(roomId, session);
+        roomSessions.computeIfAbsent(roomId, k -> new ArrayList<>()).add(session);
         System.out.println("WebSocket connected for room: " + roomId);
     }
 
@@ -107,9 +107,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         String jsonMessage = mapper.writeValueAsString(messageDTO);
-        for (WebSocketSession userSession : sessionMap.values()) {
-            if (userSession.isOpen()) {
-                userSession.sendMessage(new TextMessage(jsonMessage));
+        // Get the list of sessions for this room
+        List<WebSocketSession> sessions = roomSessions.get(roomId);
+        if (sessions != null) {
+            for (WebSocketSession userSession : sessions) {
+                if (userSession.isOpen()) {
+                    userSession.sendMessage(new TextMessage(jsonMessage));
+                }
             }
         }
     }

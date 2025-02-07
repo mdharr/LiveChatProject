@@ -27,6 +27,7 @@ const Login = ({ setIsLoggedIn }) => {
       });
       const token = response.data;
       localStorage.setItem('jwtToken', token);
+      localStorage.setItem('username', username);
       setIsLoggedIn(true);
       navigate('/rooms');
     } catch (error) {

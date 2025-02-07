@@ -29,9 +29,12 @@ const ChatRoom = () => {
 
   useEffect(() => {
     if (wsMessages.length > 0) {
-      setMessages((prevMessages) => [...prevMessages, ...wsMessages]);
+      setMessages((prevMessages) => {
+        const newMessages = wsMessages.filter(msg => !prevMessages.some(prevMsg => prevMsg.id === msg.id));
+        return [...prevMessages, ...newMessages];
+      });
     }
-  }, [wsMessages]);
+  }, [wsMessages]);  
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -40,6 +43,7 @@ const ChatRoom = () => {
       roomId: roomId,
     };
     sendMessage(messageData);
+    console.log("Sending message payload:", messageData);
     setNewMessage('');
   };
 
